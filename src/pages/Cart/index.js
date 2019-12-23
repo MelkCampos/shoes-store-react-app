@@ -1,9 +1,30 @@
 import React from 'react'
-import { MdRemoveCircleOutline, MdAddCircleOutline, MdDelete } from 'react-icons/md'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+
+import { formatPrice } from '../../util/format'
+
+import {
+    MdRemoveCircleOutline,
+    MdAddCircleOutline,
+    MdDelete
+} from 'react-icons/md'
+
+import * as CartActions from '../../store/cart/actions'
 
 import { Container, ProductTable, Total } from './styles'
 
-export default function Cart() {
+function Cart({ cart, removeFromCart, updateAmount, finalPrice }) {
+
+    // botões de adicionar ou diminuir um item específico
+
+    function incrementProduct(product) {
+        updateAmount(product.id, product.amount + 1)
+    }
+
+    function decrementProduct(product) {
+        updateAmount(product.id, product.amount - 1)
+    }
 
     return (
         <Container>
@@ -18,36 +39,41 @@ export default function Cart() {
                     </tr>
                 </thead>
                 <tbody>
+                    { cart.map(product => (
                     <tr>
                         <td>
-                            <img src="https://static.netshoes.com.br/produtos/tenis-mad-rats-old-school/26/DBC-0029-026/DBC-0029-026_detalhe2.jpg?ims=326x" alt="" />
+                            <img src={product.image}
+                            alt={product.title}
+                            />
                         </td>
                         <td>
-                            <strong>Tênis de corrida</strong>
-                            <span>R$79,90</span>
+                            <strong>{product.title}</strong>
+                            <span>{product.priceFormatted}</span>
                         </td>
                          <td>
                             <div>
-                                <button type="button">
+                                <button type="button" onClick={() => decrementProduct(product)} >
                                     <MdRemoveCircleOutline size={20} color="#7159c1" />
                                 </button>
 
-                                <input type="number" readOnly value={2} />
+                                <input type="number" readOnly value={product.amount} />
 
-                                <button type="button">
+                                <button type="button" onClick={() => incrementProduct(product)} >
                                     <MdAddCircleOutline size={20} color="#7159c1" />
                                 </button>
                               </div>    
                              </td>
                             <td>
-                                <strong>R$159,80</strong>
+                                 <strong>{product.subtotalFormatted}</strong>
                             </td>
                             <td>
-                                <button type="button">
+                                <button type="button" onClick={() => removeFromCart(product.id)}
+                                >
                                     <MdDelete size={20} color="#7159c1" />
                                 </button>
                          </td>
                     </tr>
+                    ))}
                 </tbody>
             </ProductTable>
 
@@ -56,9 +82,35 @@ export default function Cart() {
 
                 <Total>
                     <span>TOTAL</span>
-                    <strong>R$1932,38</strong>
+<                   strong>{finalPrice}</strong>
                 </Total>
             </footer>
         </Container>
     )
 }
+
+// Dentro do Reducer                  
+// Dentro do Estado do Redux
+
+const mapStateToProps = state => ({
+        cart: state.cart.map(product => ({
+            ...product,
+
+            //Subtotal do(s) produto(s) = valor do produto * a quantidade
+            subtotalFormatted: formatPrice(product.price * product.amount),
+    })),
+
+    // reduce: Pega um Array e o reduz a um único valor.
+    // Neste caso, 'state.cart' irá ser amarzenado dentro de 'finalPrice'
+    finalPrice: formatPrice(state.cart.reduce(( finalPrice, product ) => {
+        return finalPrice + product.price * product.amount
+    }, 0)) // começar com valor em 'zero'.
+})
+
+const mapDispatchToProps = dispatch => 
+    bindActionCreators(CartActions, dispatch)
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(Cart)

@@ -1,22 +1,26 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux' 
+import { bindActionCreators } from 'redux'
 import { MdShoppingCart } from 'react-icons/md'
 import { formatPrice } from '../../util/format'
-import api from '../../assets/api'
+import api from '../../services/api'
+
+// recebendo todas as funções presentes dentro de 'actions'
+import * as CartActions from '../../store/cart/actions'
 
 import { ProductList } from './styles'
 
  class Home extends Component {
 
     state = {
-        products: []
+        products: [],
     }
 
     // requisição a API
     async componentDidMount() {
         const response = await api.get('products')
 
-        // P.S: tentar trabalhar em certas "informações" antes dela ser "rederizada"
+        // P.S: tentar trabalhar em certas "informações" antes delas serem "rederizadas"
 
         // formatação de preço
         const data = response.data.map(product => ({
@@ -31,18 +35,16 @@ import { ProductList } from './styles'
     // p.s.: todos os "reducer" são ativados no dispatch
 
     handleAddProduct = product => {
-        const { dispatch } = this.props
+        const { addToCart } = this.props
 
-        dispatch({
-            type: 'ADD_TO_CART',
-            product,
-        })
+        addToCart(product)
     }
 
 
     render() { 
 
         const { products } = this.state
+        const { amount } = this.props
 
         return (
             <ProductList>
@@ -52,9 +54,12 @@ import { ProductList } from './styles'
                 <strong>{product.title}</strong>
                 <span>{product.priceFormatted}</span>
 
-                <button type="button" onClick={() => this.handleAddProduct(product)}>
+                <button type="button" onClick={() =>
+                    this.handleAddProduct(product)}>
+                        
                     <div>
-                        <MdShoppingCart size={16} color="#FFF" /> 3
+                        <MdShoppingCart size={16} color="#FFF" /> {' '}
+                        {amount[product.id] || 0}
                     </div>
 
                     <span>ADICIONAR AO CARRINHO</span>
@@ -66,4 +71,18 @@ import { ProductList } from './styles'
     }    
 }
 
-export default connect()(Home)
+const mapStateToProps = state => ({
+    amount: state.cart.reduce(( amount, product ) => {
+        amount[product.id] = product.amount
+
+        return amount
+    }, {}),
+})
+
+const mapDispatchToProps = dispatch => 
+    bindActionCreators(CartActions, dispatch)
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps )
+    (Home)
