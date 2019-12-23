@@ -34,10 +34,10 @@ import { ProductList } from './styles'
     // p.s: dispatch: disparar uma funcção no "Redux"
     // p.s.: todos os "reducer" são ativados no dispatch
 
-    handleAddProduct = product => {
-        const { addToCart } = this.props
+    handleAddProduct = id => {
+        const { addToCartRequest } = this.props
 
-        addToCart(product)
+        addToCartRequest(id)
     }
 
 
@@ -55,7 +55,7 @@ import { ProductList } from './styles'
                 <span>{product.priceFormatted}</span>
 
                 <button type="button" onClick={() =>
-                    this.handleAddProduct(product)}>
+                    this.handleAddProduct(product.id)}>
                         
                     <div>
                         <MdShoppingCart size={16} color="#FFF" /> {' '}

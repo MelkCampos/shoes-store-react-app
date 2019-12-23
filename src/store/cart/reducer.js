@@ -10,7 +10,7 @@ export default function cart(state = [], action) {
 
     // por padrão volta ao estado anterior
     switch(action.type) {
-        case '@cart/ADD':
+        case '@cart/ADD_SUCESS':
 
       // o 'draft' é um copia de 'state', por tanto o ArrayList
       return produce(state, draft => {
