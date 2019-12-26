@@ -1,4 +1,5 @@
 import produce from 'immer'
+import { bindActionCreators } from 'redux'
 
 // carrinho de compras
 export default function cart(state = [], action) {
@@ -15,26 +16,34 @@ export default function cart(state = [], action) {
       // o 'draft' é um copia de 'state', por tanto o ArrayList
       return produce(state, draft => {
 
-        // pegando ID do produto
-        const productIndex = draft.findIndex(product =>
-            product.id === action.product.id
-          )
+        const { product } = action 
 
-          // verifica se o ID já está no carrinho do cliente.
-          // Se caso estiver ele não irá duplicar o produto no carrinho de compras
-          // Ele irá aumentar a quantidade do produto para "2" por exemplo.
-          if(productIndex >= 0) {
-            draft[productIndex].amount++
-          }
+        draft.push(product)
 
-          // Se o ID não exister no carrinho de compras ( ou seja, ele ainda não foi adicionado )
-          // Então, se criara um novo produto dentro do carrinho de compras
-          else {
-            draft.push({
-              ...action.product,
-              amount: 1,
-            })
-          }
+
+
+        // CONFIGURAÇÕES SEM O SAGA
+
+        // // pegando ID do produto
+        // const productIndex = draft.findIndex(product =>
+        //     product.id === action.product.id
+        //   )
+
+        //   // verifica se o ID já está no carrinho do cliente.
+        //   // Se caso estiver ele não irá duplicar o produto no carrinho de compras
+        //   // Ele irá aumentar a quantidade do produto para "2" por exemplo.
+        //   if(productIndex >= 0) {
+        //     draft[productIndex].amount++
+        //   }
+
+        //   // Se o ID não exister no carrinho de compras ( ou seja, ele ainda não foi adicionado )
+        //   // Então, se criara um novo produto dentro do carrinho de compras
+        //   else {
+        //     draft.push({
+        //       ...action.product,
+        //       amount: 1,
+        //     })
+        //   }
 
       })
 
@@ -52,12 +61,7 @@ export default function cart(state = [], action) {
         }
       })
 
-      case '@cart/UPDATE_AMOUNT': { 
-      
-      // não fazer alterações no estado { state }
-      if(action.amount <= 0) {
-        return state
-      }
+      case '@cart/UPDATE_AMOUNT_SUCESS': { 
 
       return produce(state, draft => {
 

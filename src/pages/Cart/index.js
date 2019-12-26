@@ -14,16 +14,16 @@ import * as CartActions from '../../store/cart/actions'
 
 import { Container, ProductTable, Total } from './styles'
 
-function Cart({ cart, removeFromCart, updateAmount, finalPrice }) {
+function Cart({ cart, removeFromCart, updateAmountRequest, finalPrice }) {
 
     // botões de adicionar ou diminuir um item específico
 
     function incrementProduct(product) {
-        updateAmount(product.id, product.amount + 1)
+        updateAmountRequest(product.id, product.amount + 1)
     }
 
     function decrementProduct(product) {
-        updateAmount(product.id, product.amount - 1)
+        updateAmountRequest(product.id, product.amount - 1)
     }
 
     return (
